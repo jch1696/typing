@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>타닥타닥 - 연습</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/practice.css">
+</head>
+<body>
+  <main class="practice-page">
+    <header class="practice-header">
+      <a href="index.html" class="btn-back">뒤로</a>
+      <span id="stageLabel" class="stage-label"></span>
+      <span id="timer" class="timer">00:00</span>
+    </header>
+
+    <section id="keyboard" class="keyboard" aria-label="연습 키보드"></section>
+
+    <section class="typing-panel">
+      <div id="countdown" class="countdown hidden" aria-live="polite"></div>
+      <div id="targetText" class="target-text" aria-live="polite"></div>
+      <input
+        id="typingInput"
+        class="typing-input"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        disabled
+        aria-label="타이핑 입력"
+      />
+    </section>
+
+    <section class="stats">
+      <div class="stat-item">
+        <span class="stat-label">타수</span>
+        <span id="kpm" class="stat-value">0 KPM</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">정확도</span>
+        <span id="accuracy" class="stat-value">100%</span>
+      </div>
+      <div class="progress-wrap" aria-label="진행률">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/practice.js"></script>
+</body>
+</html>

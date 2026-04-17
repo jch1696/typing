@@ -1,0 +1,115 @@
+.main-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero { text-align: center; }
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  letter-spacing: -1px;
+}
+
+.hero-sub {
+  font-size: 1.2rem;
+  color: #546E7A;
+  margin-top: 0.4rem;
+}
+
+/* 단계 카드 그리드 */
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.stage-card {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  border: 3px solid transparent;
+}
+.stage-card:hover:not(.stage-card--locked) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  border-color: var(--color-primary);
+}
+
+.stage-card--locked {
+  background: #ECEFF1;
+  cursor: default;
+  opacity: 0.75;
+}
+
+.stage-card__order {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #90A4AE;
+  margin-bottom: 0.25rem;
+}
+
+.stage-card__name {
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin-bottom: 0.75rem;
+}
+
+.stage-card__best {
+  font-size: 1rem;
+  color: #546E7A;
+  margin-bottom: 1rem;
+  min-height: 1.5rem;
+}
+.stage-card__best strong {
+  font-size: 1.3rem;
+  color: var(--color-primary-dark);
+  font-weight: 900;
+}
+
+.stage-card__btn {
+  display: inline-block;
+  background: var(--color-primary);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+}
+
+.stage-card__lock { font-size: 2rem; margin-bottom: 0.5rem; }
+
+.stage-card__unlock-hint {
+  font-size: 0.9rem;
+  color: #78909C;
+  line-height: 1.5;
+}
+
+/* 초기화 버튼 */
+.main-footer { margin-top: auto; }
+
+.btn-reset {
+  font-size: 0.9rem;
+  color: #90A4AE;
+  padding: 0.5rem 1rem;
+  border: 1px solid #CFD8DC;
+  border-radius: 50px;
+  background: white;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-reset:hover {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}

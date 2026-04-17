@@ -1,0 +1,191 @@
+.practice-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* 헤더 */
+.practice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.btn-back {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.stage-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.timer {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #546E7A;
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5rem;
+  text-align: right;
+  transition: color 0.3s;
+}
+.timer--danger { color: var(--color-error); }
+
+/* 키보드 */
+.keyboard {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1rem 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.key {
+  min-width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #ECEFF1;
+  color: #546E7A;
+  border: 2px solid #CFD8DC;
+  transition: all 0.1s;
+  position: relative;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.key-en { font-size: 0.7rem; color: #90A4AE; }
+.key-kr { font-size: 0.75rem; color: var(--color-text); font-weight: 900; }
+
+.key--highlight {
+  background: var(--color-accent);
+  border-color: #FFC107;
+}
+.key--highlight .key-en { color: #795548; }
+
+.key--pressed {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary-dark);
+  transform: scale(0.88);
+}
+.key--pressed .key-en,
+.key--pressed .key-kr { color: white; }
+
+/* 타이핑 패널 */
+.typing-panel {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.96);
+  border-radius: var(--radius);
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  z-index: 10;
+}
+
+.target-text {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  min-height: 3.5rem;
+  word-break: keep-all;
+}
+
+.finish-hint {
+  font-size: 1.2rem;
+  color: #90A4AE;
+  font-weight: 700;
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.char { display: inline-block; }
+.char--correct { color: var(--color-text); }
+.char--wrong   { background: var(--color-error); color: white; border-radius: 4px; padding: 0 1px; }
+.char--pending { color: #B0BEC5; }
+
+.typing-input {
+  width: 100%;
+  font-size: 1.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #CFD8DC;
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  color: var(--color-text);
+  transition: border-color 0.2s;
+}
+.typing-input:focus   { border-color: var(--color-primary); }
+.typing-input:disabled { background: #FAFAFA; }
+
+/* 통계 */
+.stats {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.stat-item { display: flex; align-items: baseline; gap: 0.4rem; }
+
+.stat-label { font-size: 0.9rem; color: #90A4AE; font-weight: 700; }
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-wrap {
+  flex: 1;
+  height: 10px;
+  background: #ECEFF1;
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 50px;
+  transition: width 0.9s linear;
+  width: 100%;
+}
+.progress-bar--danger { background: var(--color-error); }
