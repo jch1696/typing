@@ -71,7 +71,6 @@ let timerInterval = null;
 let remainingSeconds = PRACTICE_SECONDS;
 let finished = false;
 let waitingForNextText = false;
-let advanceOnSpaceKeyup = false;
 let isComposing = false;
 // 완료한 문장들의 누적 타수 (자모 키 입력 수 기준)
 let totalCorrectStrokes = 0;
@@ -98,6 +97,7 @@ function loadNextText() {
   targetText = pickNextText();
   engine = new TypingEngine(targetText);
   waitingForNextText = false;
+  isComposing = false;
   typingInput.disabled = false;
   typingInput.value = '';
   typingInput.focus();
@@ -292,19 +292,14 @@ document.addEventListener('keydown', (event) => {
     return;
   }
 
+  // keyup까지 기다리면 스페이스를 떼기 전에 친 첫 글자가
+  // 비활성화된 입력창에서 사라지므로, 누르는 즉시 다음 문장을 연다
   event.preventDefault();
-  advanceOnSpaceKeyup = true;
+  loadNextText();
 });
 
 document.addEventListener('keyup', (event) => {
   keyboard.releaseKey(event.code);
-
-  if (!waitingForNextText || finished || !advanceOnSpaceKeyup || event.code !== 'Space') {
-    return;
-  }
-
-  advanceOnSpaceKeyup = false;
-  loadNextText();
 });
 
 renderTarget(null);
