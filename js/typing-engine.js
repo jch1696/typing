@@ -4,7 +4,9 @@ export class TypingEngine {
     this.inputText = '';
   }
 
-  update(inputText) {
+  // composingIndex: IME로 조합 중인 글자 위치(없으면 -1)
+  // 조합 중인 글자는 아직 완성 전이므로 틀림으로 표시하지 않는다.
+  update(inputText, composingIndex = -1) {
     this.inputText = inputText;
     const target = this.targetText;
     const input = inputText;
@@ -20,6 +22,8 @@ export class TypingEngine {
       } else if (input[i] === char) {
         statusList.push({ char, status: 'correct' });
         correctCount++;
+      } else if (i === composingIndex) {
+        statusList.push({ char, status: 'pending' });
       } else {
         statusList.push({ char, status: 'wrong' });
         wrongCount++;

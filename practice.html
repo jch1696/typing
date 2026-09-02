@@ -16,7 +16,7 @@
     <header class="practice-header">
       <a href="index.html" class="btn-back">뒤로</a>
       <span id="stageLabel" class="stage-label"></span>
-      <span id="timer" class="timer">00:00</span>
+      <span id="timer" class="timer">30초</span>
     </header>
 
     <section id="keyboard" class="keyboard" aria-label="연습 키보드"></section>
@@ -35,6 +35,9 @@
         disabled
         aria-label="타이핑 입력"
       />
+      <div id="imeHint" class="ime-hint hidden" aria-live="polite">
+        영어가 입력되고 있어요! <strong>한/영</strong> 키를 눌러 한글로 바꿔 보세요
+      </div>
     </section>
 
     <section class="stats">

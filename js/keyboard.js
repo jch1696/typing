@@ -58,17 +58,30 @@ export class Keyboard {
     });
   }
 
-  pressKey(key) {
-    const normalizedKey = key.toLowerCase();
-    if (this.keyEls[normalizedKey]) {
-      this.keyEls[normalizedKey].classList.add('key--pressed');
+  // 한글 IME 상태에서는 event.key가 'ㅅ', 'Process' 등으로 오기 때문에
+  // 물리 키 위치를 나타내는 event.code로 키를 찾는다.
+  static keyFromCode(code) {
+    if (typeof code !== 'string') {
+      return null;
+    }
+    if (code.startsWith('Key')) {
+      return code.slice(3).toLowerCase();
+    }
+    const punctuation = { Semicolon: ';', Comma: ',', Period: '.', Slash: '/' };
+    return punctuation[code] ?? null;
+  }
+
+  pressKey(code) {
+    const key = Keyboard.keyFromCode(code);
+    if (key && this.keyEls[key]) {
+      this.keyEls[key].classList.add('key--pressed');
     }
   }
 
-  releaseKey(key) {
-    const normalizedKey = key.toLowerCase();
-    if (this.keyEls[normalizedKey]) {
-      this.keyEls[normalizedKey].classList.remove('key--pressed');
+  releaseKey(code) {
+    const key = Keyboard.keyFromCode(code);
+    if (key && this.keyEls[key]) {
+      this.keyEls[key].classList.remove('key--pressed');
     }
   }
 

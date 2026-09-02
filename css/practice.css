@@ -152,6 +152,17 @@
 .typing-input:focus   { border-color: var(--color-primary); }
 .typing-input:disabled { background: #FAFAFA; }
 
+.ime-hint {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: #FFF3E0;
+  border: 2px solid #FFB74D;
+  border-radius: 8px;
+  color: #E65100;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 /* 통계 */
 .stats {
   background: white;

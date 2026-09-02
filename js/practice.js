@@ -2,6 +2,7 @@ import { STAGES, TEXTS } from './data.js';
 import { updateStageResult, saveLastResult } from './storage.js';
 import { TypingEngine } from './typing-engine.js';
 import { Keyboard } from './keyboard.js';
+import { charStrokes, countStrokes } from './hangul.js';
 
 const PRACTICE_SECONDS = 30;
 
@@ -35,6 +36,12 @@ function pickNextText() {
   if (textIndex >= textPool.length) {
     textPool = shuffle(TEXTS[stage.id]);
     textIndex = 0;
+
+    // 재셔플 직후 방금 친 문장이 연속으로 나오지 않게 한다
+    if (textPool.length > 1 && textPool[0] === text) {
+      const swapIndex = 1 + Math.floor(Math.random() * (textPool.length - 1));
+      [textPool[0], textPool[swapIndex]] = [textPool[swapIndex], textPool[0]];
+    }
   }
 
   return text;
@@ -49,8 +56,10 @@ const typingInput = document.getElementById('typingInput');
 const kpmEl = document.getElementById('kpm');
 const accuracyEl = document.getElementById('accuracy');
 const progressBar = document.getElementById('progressBar');
+const imeHint = document.getElementById('imeHint');
 
 stageLabel.textContent = `${stage.order}단계: ${stage.name}`;
+timerEl.textContent = `${PRACTICE_SECONDS}초`;
 
 const keyboard = new Keyboard(keyboardEl);
 keyboard.render();
@@ -63,7 +72,10 @@ let remainingSeconds = PRACTICE_SECONDS;
 let finished = false;
 let waitingForNextText = false;
 let advanceOnSpaceKeyup = false;
-let totalCompletedChars = 0;
+let isComposing = false;
+// 완료한 문장들의 누적 타수 (자모 키 입력 수 기준)
+let totalCorrectStrokes = 0;
+let totalTypedStrokes = 0;
 
 function renderTarget(statusList) {
   if (!statusList) {
@@ -89,18 +101,45 @@ function loadNextText() {
   typingInput.disabled = false;
   typingInput.value = '';
   typingInput.focus();
+  imeHint.classList.add('hidden');
   renderTarget(null);
+}
+
+// 현재 입력 중인 문장의 타수 (조합 중인 글자는 제외)
+function partialStrokes() {
+  const input = typingInput.value;
+  const composingIndex = isComposing ? input.length - 1 : -1;
+  let correct = 0;
+  let typed = 0;
+
+  for (let i = 0; i < input.length; i += 1) {
+    if (i === composingIndex) {
+      continue;
+    }
+    const strokes = charStrokes(input[i]);
+    typed += strokes;
+    if (input[i] === targetText[i]) {
+      correct += strokes;
+    }
+  }
+
+  return { correct, typed };
+}
+
+function totalStrokes() {
+  const partial = partialStrokes();
+  return {
+    correct: totalCorrectStrokes + partial.correct,
+    typed: totalTypedStrokes + partial.typed
+  };
 }
 
 function calcStats() {
   const elapsed = PRACTICE_SECONDS - remainingSeconds;
-  const partialCorrect = engine.getCorrectCount();
-  const totalCorrect = totalCompletedChars + partialCorrect;
-  const partialTyped = typingInput.value.length;
-  const totalTyped = totalCompletedChars + partialTyped;
+  const { correct, typed } = totalStrokes();
 
-  const kpm = elapsed > 0 ? Math.round((totalCorrect / elapsed) * 60) : 0;
-  const accuracy = totalTyped > 0 ? Math.round((totalCorrect / totalTyped) * 100) : 100;
+  const kpm = elapsed > 0 ? Math.round((correct / elapsed) * 60) : 0;
+  const accuracy = typed > 0 ? Math.round((correct / typed) * 100) : 100;
 
   return { kpm, accuracy };
 }
@@ -164,13 +203,10 @@ function finish() {
   window.clearInterval(timerInterval);
   typingInput.disabled = true;
 
-  const partialCorrect = engine.getCorrectCount();
-  const partialTyped = typingInput.value.length;
-  const totalCorrect = totalCompletedChars + partialCorrect;
-  const totalTyped = totalCompletedChars + partialTyped;
+  const { correct, typed } = totalStrokes();
 
-  const finalKpm = Math.round((totalCorrect / PRACTICE_SECONDS) * 60);
-  const finalAccuracy = totalTyped > 0 ? Math.round((totalCorrect / totalTyped) * 100) : 100;
+  const finalKpm = Math.round((correct / PRACTICE_SECONDS) * 60);
+  const finalAccuracy = typed > 0 ? Math.round((correct / typed) * 100) : 100;
 
   const { isNewBest, previousBestKpm, unlockedStageId } = updateStageResult(stage.id, {
     kpm: finalKpm,
@@ -202,12 +238,28 @@ function finish() {
   });
 }
 
-typingInput.addEventListener('input', () => {
+typingInput.addEventListener('compositionstart', () => {
+  isComposing = true;
+});
+
+typingInput.addEventListener('compositionend', () => {
+  isComposing = false;
+});
+
+typingInput.addEventListener('input', (event) => {
   if (finished || waitingForNextText) {
     return;
   }
 
-  const result = engine.update(typingInput.value);
+  isComposing = Boolean(event.isComposing);
+
+  const inputValue = typingInput.value;
+  const composingIndex = isComposing ? inputValue.length - 1 : -1;
+
+  // 영문 자판 상태 감지: 한/영 전환 안내
+  imeHint.classList.toggle('hidden', !/[a-zA-Z]/.test(inputValue));
+
+  const result = engine.update(inputValue, composingIndex);
   renderTarget(result.statusList);
 
   const { kpm, accuracy } = calcStats();
@@ -215,7 +267,13 @@ typingInput.addEventListener('input', () => {
   accuracyEl.textContent = `${accuracy}%`;
 
   if (result.completed) {
-    totalCompletedChars += targetText.length;
+    // 완료한 문장의 타수를 누적하고 입력창을 비워
+    // 종료 시점 계산에서 이중으로 세지 않게 한다
+    const strokes = countStrokes(targetText);
+    totalCorrectStrokes += strokes;
+    totalTypedStrokes += strokes;
+    typingInput.value = '';
+
     waitingForNextText = true;
     typingInput.disabled = true;
     renderTarget(result.statusList);
@@ -228,7 +286,7 @@ typingInput.addEventListener('paste', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
-  keyboard.pressKey(event.key);
+  keyboard.pressKey(event.code);
 
   if (!waitingForNextText || finished || event.code !== 'Space') {
     return;
@@ -239,7 +297,7 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('keyup', (event) => {
-  keyboard.releaseKey(event.key);
+  keyboard.releaseKey(event.code);
 
   if (!waitingForNextText || finished || !advanceOnSpaceKeyup || event.code !== 'Space') {
     return;
