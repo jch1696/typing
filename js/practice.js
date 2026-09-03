@@ -272,9 +272,15 @@ typingInput.addEventListener('input', (event) => {
     const strokes = countStrokes(targetText);
     totalCorrectStrokes += strokes;
     totalTypedStrokes += strokes;
-    typingInput.value = '';
 
     waitingForNextText = true;
+
+    // 마지막 글자가 IME 조합 중인 상태로 완료될 수 있으므로
+    // blur로 조합 세션을 확실히 끝낸 뒤 입력창을 비운다.
+    // 남은 조합이 다음 문장 첫 글자를 삼키는 문제 방지.
+    typingInput.blur();
+    isComposing = false;
+    typingInput.value = '';
     typingInput.disabled = true;
     renderTarget(result.statusList);
     showNextTextHint();
