@@ -5,9 +5,9 @@ const LAST_RESULT_KEY = 'tadak_last_result';
 
 function createDefaultProgress() {
   const progress = {};
-  STAGES.forEach((stage, i) => {
+  STAGES.forEach((stage) => {
     progress[stage.id] = {
-      unlocked: i === 0,
+      unlocked: stage.unlock === null,
       bestKpm: 0,
       bestAccuracy: 0,
       playCount: 0

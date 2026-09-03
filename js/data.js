@@ -2,6 +2,7 @@ export const STAGES = [
   {
     id: 'stage1',
     order: 1,
+    lang: 'ko',
     name: '기본자리',
     keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
     unlock: null
@@ -9,6 +10,7 @@ export const STAGES = [
   {
     id: 'stage2',
     order: 2,
+    lang: 'ko',
     name: '윗자리',
     keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     unlock: { stageId: 'stage1', minKpm: 100 }
@@ -16,6 +18,7 @@ export const STAGES = [
   {
     id: 'stage3',
     order: 3,
+    lang: 'ko',
     name: '아랫자리',
     keys: ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
     unlock: { stageId: 'stage2', minKpm: 100 }
@@ -23,11 +26,52 @@ export const STAGES = [
   {
     id: 'stage4',
     order: 4,
+    lang: 'ko',
     name: '짧은글',
     keys: [],
     unlock: { stageId: 'stage3', minKpm: 120 }
+  },
+  {
+    id: 'en1',
+    order: 5,
+    lang: 'en',
+    name: '기본자리',
+    keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
+    unlock: null
+  },
+  {
+    id: 'en2',
+    order: 6,
+    lang: 'en',
+    name: '윗자리',
+    keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    unlock: { stageId: 'en1', minKpm: 100 }
+  },
+  {
+    id: 'en3',
+    order: 7,
+    lang: 'en',
+    name: '아랫자리',
+    keys: ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+    unlock: { stageId: 'en2', minKpm: 100 }
+  },
+  {
+    id: 'en4',
+    order: 8,
+    lang: 'en',
+    name: '짧은글',
+    keys: [],
+    unlock: { stageId: 'en3', minKpm: 120 }
   }
 ];
+
+// 트랙(한글/영어) 안에서의 단계 번호와 접두어
+export function getStageLabel(stage) {
+  const track = STAGES.filter((item) => item.lang === stage.lang);
+  const number = track.findIndex((item) => item.id === stage.id) + 1;
+  const prefix = stage.lang === 'en' ? '영어' : '한글';
+  return { number, prefix };
+}
 
 // ══════════════════════════════════════════════════════
 // 1단계 — 기본자리
@@ -323,5 +367,131 @@ export const TEXTS = {
     '착하고 바른 어린이',
     '친구들과 사이좋게 지내요',
     '우리 함께 노래해요',
+  ],
+
+  // ══════════════════════════════════════════════════════
+  // 영어 1단계 — 기본자리 (a s d f g h j k l)
+  // ══════════════════════════════════════════════════════
+  en1: [
+    'asdf jkl;',
+    'aa ss dd ff',
+    'jj kk ll ;;',
+    'fj dk sl a;',
+    'ad as fa da',
+    'ja ka la ha',
+    'gag hah dad',
+    'sad lad gas',
+    'ask all add',
+    'fall hall gall',
+    'glad flag lass',
+    'dash gash sash',
+    'as has gas',
+    'dad had a lad',
+    'a sad lad',
+    'all fall hall',
+    'ask a lad',
+    'dad has a flag',
+    'a glass fall',
+    'add a salad',
+    'alas a gala',
+    'half a glass',
+    'a lass had salad',
+    'flags fall fast',
+    'dads ask lads',
+    'sal has a flask',
+  ],
+
+  // ══════════════════════════════════════════════════════
+  // 영어 2단계 — 윗자리 포함 (q w e r t y u i o p 추가)
+  // ══════════════════════════════════════════════════════
+  en2: [
+    'we are here',
+    'you are okay',
+    'water is sweet',
+    'a happy tiger',
+    'the tree is tall',
+    'i like apples',
+    'a red rose',
+    'they play a lot',
+    'we go to the park',
+    'a little house',
+    'she reads a story',
+    'the sky is grey',
+    'we ride a horse',
+    'a yellow flower',
+    'the fire is hot',
+    'you write well',
+    'a quiet lake',
+    'we sail out west',
+    'take your paper',
+    'the door is white',
+    'a sweet potato',
+    'we eat together',
+    'the girl is happy',
+    'a fast walker',
+    'stars are pretty',
+    'you did great work',
+    'a warm sweater',
+    'the world is wide',
+  ],
+
+  // ══════════════════════════════════════════════════════
+  // 영어 3단계 — 아랫자리 포함 (전체 키)
+  // ══════════════════════════════════════════════════════
+  en3: [
+    'a black cat',
+    'the brown fox',
+    'a big zebra',
+    'monkeys eat bananas',
+    'the moon is bright',
+    'seven blue balloons',
+    'a cozy blanket',
+    'we bake a cake',
+    'the bus is coming',
+    'jump very high',
+    'a quick brown fox',
+    'pizza and juice',
+    'my new bicycle',
+    'a funny monkey',
+    'the clock ticks',
+    'candy and cookies',
+    'a magic wizard',
+    'the zoo is open',
+    'six brave boys',
+    'a violin and a cello',
+    'winter is very cold',
+    'my very best friend',
+    'the ocean is deep',
+    'a lazy dog naps',
+    'we climb the mountain',
+    'a dozen crayons',
+  ],
+
+  // ══════════════════════════════════════════════════════
+  // 영어 4단계 — 짧은글
+  // ══════════════════════════════════════════════════════
+  en4: [
+    'I like to play soccer',
+    'The sun is shining today',
+    'My dog runs very fast',
+    'We read books at school',
+    'She sings a happy song',
+    'The cat sleeps on the sofa',
+    'I want some ice cream',
+    'Birds fly high in the sky',
+    'We are best friends forever',
+    'My mom makes good food',
+    'The rainbow has many colors',
+    'I can ride my bike now',
+    'Winter snow is white and cold',
+    'Let us go to the beach',
+    'The stars shine at night',
+    'I love my family so much',
+    'A frog jumps into the pond',
+    'We plant flowers in spring',
+    'The train goes very fast',
+    'Practice makes perfect every day',
+    'You can do it if you try',
+    'Today is a wonderful day',
   ],
 };

@@ -1,4 +1,4 @@
-import { STAGES, TEXTS } from './data.js';
+import { STAGES, TEXTS, getStageLabel } from './data.js';
 import { updateStageResult, saveLastResult } from './storage.js';
 import { TypingEngine } from './typing-engine.js';
 import { Keyboard } from './keyboard.js';
@@ -59,7 +59,15 @@ const accuracyEl = document.getElementById('accuracy');
 const progressBar = document.getElementById('progressBar');
 const imeHint = document.getElementById('imeHint');
 
-stageLabel.textContent = `${stage.order}단계: ${stage.name}`;
+const { number: stageNumber, prefix: stagePrefix } = getStageLabel(stage);
+stageLabel.textContent = `${stagePrefix} ${stageNumber}단계: ${stage.name}`;
+
+// 언어별 한/영 전환 안내 문구와 감지 패턴
+const isEnglishStage = stage.lang === 'en';
+const wrongLangPattern = isEnglishStage ? /[ㄱ-ㅎㅏ-ㅣ가-힣]/ : /[a-zA-Z]/;
+imeHint.innerHTML = isEnglishStage
+  ? '한글이 입력되고 있어요! <strong>한/영</strong> 키를 눌러 영어로 바꿔 보세요'
+  : '영어가 입력되고 있어요! <strong>한/영</strong> 키를 눌러 한글로 바꿔 보세요';
 timerEl.textContent = `${PRACTICE_SECONDS}초`;
 
 const keyboard = new Keyboard(keyboardEl);
@@ -296,8 +304,8 @@ typingInput.addEventListener('input', (event) => {
   const inputValue = currentInput();
   const composingIndex = isComposing ? inputValue.length - 1 : -1;
 
-  // 영문 자판 상태 감지: 한/영 전환 안내
-  imeHint.classList.toggle('hidden', !/[a-zA-Z]/.test(inputValue));
+  // 자판 언어 상태 감지: 한/영 전환 안내
+  imeHint.classList.toggle('hidden', !wrongLangPattern.test(inputValue));
 
   const result = engine.update(inputValue, composingIndex);
   renderTypedDisplay(inputValue);

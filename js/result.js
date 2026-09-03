@@ -1,4 +1,4 @@
-import { STAGES } from './data.js';
+import { STAGES, getStageLabel } from './data.js';
 import { loadLastResult } from './storage.js';
 
 const result = loadLastResult();
@@ -39,7 +39,8 @@ if (result.isNewBest) {
 if (result.unlockedStageId) {
   const unlockedStage = STAGES.find((stage) => stage.id === result.unlockedStageId);
   if (unlockedStage) {
-    messageHtml += `<div class="result-msg result-msg--unlock">${unlockedStage.order}단계 ${unlockedStage.name}가 열렸어요!</div>`;
+    const { number, prefix } = getStageLabel(unlockedStage);
+    messageHtml += `<div class="result-msg result-msg--unlock">${prefix} ${number}단계 ${unlockedStage.name}가 열렸어요!</div>`;
   }
 }
 

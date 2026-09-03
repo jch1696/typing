@@ -24,6 +24,22 @@
   margin-top: 0.4rem;
 }
 
+/* 트랙(한글/영어) 섹션 */
+.stage-tracks {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.track-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  margin-top: 0.5rem;
+}
+.track-title:first-child { margin-top: 0; }
+
 /* 단계 카드 그리드 */
 .stage-grid {
   display: grid;
