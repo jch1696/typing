@@ -287,6 +287,12 @@ typingInput.addEventListener('input', (event) => {
     baseOffset = typingInput.value.length;
   }
 
+  // 문장 전환 스페이스는 preventDefault를 해도 IME 상태에 따라
+  // 입력창에 끼어들 수 있다. 문장 맨 앞의 스페이스는 소비 처리
+  while (typingInput.value[baseOffset] === ' ' && targetText[0] !== ' ') {
+    baseOffset += 1;
+  }
+
   const inputValue = currentInput();
   const composingIndex = isComposing ? inputValue.length - 1 : -1;
 
