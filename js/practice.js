@@ -53,6 +53,7 @@ const keyboardEl = document.getElementById('keyboard');
 const countdownEl = document.getElementById('countdown');
 const targetTextEl = document.getElementById('targetText');
 const typingInput = document.getElementById('typingInput');
+const typingDisplay = document.getElementById('typingDisplay');
 const kpmEl = document.getElementById('kpm');
 const accuracyEl = document.getElementById('accuracy');
 const progressBar = document.getElementById('progressBar');
@@ -103,6 +104,14 @@ function currentInput() {
   return typingInput.value.slice(baseOffset);
 }
 
+// 실제 입력창은 투명하므로, 현재 문장 부분만 표시 영역에 그린다
+function renderTypedDisplay(text) {
+  typingDisplay.textContent = text;
+  const caret = document.createElement('span');
+  caret.className = 'typing-caret';
+  typingDisplay.appendChild(caret);
+}
+
 function loadNextText() {
   targetText = pickNextText();
   engine = new TypingEngine(targetText);
@@ -111,6 +120,7 @@ function loadNextText() {
   // 입력창은 건드리지 않고, 지금까지의 값 전체를 소비한 것으로 표시
   baseOffset = typingInput.value.length;
   imeHint.classList.add('hidden');
+  renderTypedDisplay('');
   renderTarget(null);
 }
 
@@ -284,6 +294,7 @@ typingInput.addEventListener('input', (event) => {
   imeHint.classList.toggle('hidden', !/[a-zA-Z]/.test(inputValue));
 
   const result = engine.update(inputValue, composingIndex);
+  renderTypedDisplay(inputValue);
   renderTarget(result.statusList);
 
   const { kpm, accuracy } = calcStats();
@@ -301,6 +312,7 @@ typingInput.addEventListener('input', (event) => {
     baseOffset = typingInput.value.length;
 
     waitingForNextText = true;
+    renderTypedDisplay('');
     renderTarget(result.statusList);
     showNextTextHint();
   }
@@ -308,6 +320,13 @@ typingInput.addEventListener('input', (event) => {
 
 typingInput.addEventListener('paste', (event) => {
   event.preventDefault();
+});
+
+// 다른 곳을 클릭해도 입력이 끊기지 않게 포커스를 되찾는다
+typingInput.addEventListener('blur', () => {
+  if (!finished && !typingInput.disabled) {
+    window.setTimeout(() => typingInput.focus(), 0);
+  }
 });
 
 document.addEventListener('keydown', (event) => {

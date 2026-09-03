@@ -138,19 +138,58 @@
 .char--wrong   { background: var(--color-error); color: white; border-radius: 4px; padding: 0 1px; }
 .char--pending { color: #B0BEC5; }
 
-.typing-input {
+.typing-area {
+  position: relative;
+}
+
+/* 사용자에게 보이는 입력 표시: 현재 문장 부분만 렌더링 */
+.typing-display {
   width: 100%;
+  min-height: calc(1.4rem * 1.4 + 1rem + 4px);
   font-size: 1.4rem;
+  line-height: 1.4;
   padding: 0.5rem 0.75rem;
   border: 2px solid #CFD8DC;
   border-radius: 8px;
-  outline: none;
   font-family: inherit;
   color: var(--color-text);
+  background: white;
+  white-space: pre;
+  overflow: hidden;
   transition: border-color 0.2s;
 }
-.typing-input:focus   { border-color: var(--color-primary); }
-.typing-input:disabled { background: #FAFAFA; }
+.typing-area:focus-within .typing-display { border-color: var(--color-primary); }
+
+.typing-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.3em;
+  background: var(--color-primary);
+  vertical-align: text-bottom;
+  animation: caret-blink 1s step-start infinite;
+}
+
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+
+/* 실제 입력창: IME가 동작하는 투명 레이어.
+   글자 유실 방지를 위해 값·포커스를 유지해야 하므로 숨기지 않고 겹쳐 둔다 */
+.typing-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 1.4rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+}
+.typing-input::selection { background: transparent; }
 
 .ime-hint {
   margin-top: 0.6rem;
