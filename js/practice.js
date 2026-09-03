@@ -72,6 +72,11 @@ let remainingSeconds = PRACTICE_SECONDS;
 let finished = false;
 let waitingForNextText = false;
 let isComposing = false;
+let pendingAdvance = false;
+// 입력창 값은 연습 내내 절대 지우지 않고 누적시킨다.
+// 값을 지우거나 blur하면 IME 조합이 깨져 글자가 사라지므로,
+// 현재 문장은 baseOffset 이후의 부분 문자열로만 읽는다.
+let baseOffset = 0;
 // 완료한 문장들의 누적 타수 (자모 키 입력 수 기준)
 let totalCorrectStrokes = 0;
 let totalTypedStrokes = 0;
@@ -93,28 +98,30 @@ function showNextTextHint() {
   targetTextEl.innerHTML += '<span class="finish-hint">스페이스를 누르면 다음 문장이 나와요</span>';
 }
 
-// 진행 중인 IME 조합을 커밋시키고 포커스는 그대로 유지한다
-function flushComposition() {
-  if (isComposing) {
-    typingInput.blur();
-  }
-  isComposing = false;
-  typingInput.focus();
+// 현재 문장에 해당하는 입력 (누적 입력에서 baseOffset 이후)
+function currentInput() {
+  return typingInput.value.slice(baseOffset);
 }
 
 function loadNextText() {
   targetText = pickNextText();
   engine = new TypingEngine(targetText);
   waitingForNextText = false;
-  flushComposition();
-  typingInput.value = '';
+  pendingAdvance = false;
+  // 입력창은 건드리지 않고, 지금까지의 값 전체를 소비한 것으로 표시
+  baseOffset = typingInput.value.length;
   imeHint.classList.add('hidden');
   renderTarget(null);
 }
 
 // 현재 입력 중인 문장의 타수 (조합 중인 글자는 제외)
 function partialStrokes() {
-  const input = typingInput.value;
+  // 문장 사이 대기 중에 친 글자는 통계에 넣지 않는다
+  if (waitingForNextText) {
+    return { correct: 0, typed: 0 };
+  }
+
+  const input = currentInput();
   const composingIndex = isComposing ? input.length - 1 : -1;
   let correct = 0;
   let typed = 0;
@@ -251,6 +258,11 @@ typingInput.addEventListener('compositionstart', () => {
 
 typingInput.addEventListener('compositionend', () => {
   isComposing = false;
+
+  // 조합 중에 스페이스가 눌린 경우: 커밋이 끝난 지금 전환한다
+  if (pendingAdvance && waitingForNextText && !finished) {
+    loadNextText();
+  }
 });
 
 typingInput.addEventListener('input', (event) => {
@@ -260,7 +272,12 @@ typingInput.addEventListener('input', (event) => {
 
   isComposing = Boolean(event.isComposing);
 
-  const inputValue = typingInput.value;
+  // 백스페이스로 이전 문장 영역까지 지운 경우 오프셋 보정
+  if (typingInput.value.length < baseOffset) {
+    baseOffset = typingInput.value.length;
+  }
+
+  const inputValue = currentInput();
   const composingIndex = isComposing ? inputValue.length - 1 : -1;
 
   // 영문 자판 상태 감지: 한/영 전환 안내
@@ -274,19 +291,16 @@ typingInput.addEventListener('input', (event) => {
   accuracyEl.textContent = `${accuracy}%`;
 
   if (result.completed) {
-    // 완료한 문장의 타수를 누적하고 입력창을 비워
-    // 종료 시점 계산에서 이중으로 세지 않게 한다
+    // 완료한 문장의 타수를 누적한다. 입력창은 절대 건드리지 않는다
+    // (값 초기화·blur가 IME 조합을 깨서 글자가 사라지는 원인이었다)
     const strokes = countStrokes(targetText);
     totalCorrectStrokes += strokes;
     totalTypedStrokes += strokes;
 
-    waitingForNextText = true;
+    // 완료한 문장 구간을 소비 처리해 이중 계산을 막는다
+    baseOffset = typingInput.value.length;
 
-    // 입력창은 비활성화하지 않고 포커스를 유지한다.
-    // disable/blur로 IME를 끊으면 다음 문장 첫 글자의 조합이
-    // 깨져 글자가 사라질 수 있다. 조합만 blur+focus로 정리한다.
-    flushComposition();
-    typingInput.value = '';
+    waitingForNextText = true;
     renderTarget(result.statusList);
     showNextTextHint();
   }
@@ -303,9 +317,15 @@ document.addEventListener('keydown', (event) => {
     return;
   }
 
-  // keyup까지 기다리면 스페이스를 떼기 전에 친 첫 글자가
-  // 비활성화된 입력창에서 사라지므로, 누르는 즉시 다음 문장을 연다
   event.preventDefault();
+
+  // 마지막 글자가 아직 조합 중이면 IME가 이 스페이스로 커밋을
+  // 진행하므로, compositionend 후에 전환한다 (leftover 흡수)
+  if (isComposing) {
+    pendingAdvance = true;
+    return;
+  }
+
   loadNextText();
 });
 
