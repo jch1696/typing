@@ -93,14 +93,21 @@ function showNextTextHint() {
   targetTextEl.innerHTML += '<span class="finish-hint">스페이스를 누르면 다음 문장이 나와요</span>';
 }
 
+// 진행 중인 IME 조합을 커밋시키고 포커스는 그대로 유지한다
+function flushComposition() {
+  if (isComposing) {
+    typingInput.blur();
+  }
+  isComposing = false;
+  typingInput.focus();
+}
+
 function loadNextText() {
   targetText = pickNextText();
   engine = new TypingEngine(targetText);
   waitingForNextText = false;
-  isComposing = false;
-  typingInput.disabled = false;
+  flushComposition();
   typingInput.value = '';
-  typingInput.focus();
   imeHint.classList.add('hidden');
   renderTarget(null);
 }
@@ -275,13 +282,11 @@ typingInput.addEventListener('input', (event) => {
 
     waitingForNextText = true;
 
-    // 마지막 글자가 IME 조합 중인 상태로 완료될 수 있으므로
-    // blur로 조합 세션을 확실히 끝낸 뒤 입력창을 비운다.
-    // 남은 조합이 다음 문장 첫 글자를 삼키는 문제 방지.
-    typingInput.blur();
-    isComposing = false;
+    // 입력창은 비활성화하지 않고 포커스를 유지한다.
+    // disable/blur로 IME를 끊으면 다음 문장 첫 글자의 조합이
+    // 깨져 글자가 사라질 수 있다. 조합만 blur+focus로 정리한다.
+    flushComposition();
     typingInput.value = '';
-    typingInput.disabled = true;
     renderTarget(result.statusList);
     showNextTextHint();
   }
